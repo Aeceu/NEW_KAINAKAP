@@ -28,7 +28,6 @@ const DoneRegister = ({ setCurrentStep }) => {
   }, []);
 
   const handleReset = () => {
-    dispatch(resetNewUser());
     setCurrentStep(0);
   };
 
