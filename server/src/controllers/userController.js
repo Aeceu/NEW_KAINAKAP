@@ -67,7 +67,7 @@ const signup = async (req, res) => {
       medical_certificate_url: "",
       proof_of_disability_id: "",
       proof_of_disability_url: "",
-      valid_id_no: idData.idNumber,
+      valid_id_no: "",
       valid_id_id: "",
       valid_id_url: "",
     };
