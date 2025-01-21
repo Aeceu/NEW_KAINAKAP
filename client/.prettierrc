@@ -1,0 +1,4 @@
+{
+  "extensions": [".js", ".jsx", ".json", ".css"],
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
