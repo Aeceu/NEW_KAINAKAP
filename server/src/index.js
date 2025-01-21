@@ -15,7 +15,7 @@ dotenv.config();
 const app = express();
 
 // TRUSTERED ORIGINS
-const localClientUrl = "http://localhost:5173";
+const localClientUrl = "https://new-kainakap.vercel.app";
 
 // MIDDLEWARES
 app.use(bodyParser.json({ limit: "50mb" }));
