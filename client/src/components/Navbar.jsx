@@ -12,7 +12,7 @@ const Navbar = () => {
       </div>
       <div className="flex items-center gap-2 ">
         <Link
-          to="/land"
+          to="/"
           className="rounded-lg btn font-display btn-accent px-3 py-2 text-skin-invr transition-colors "
           onMouseEnter={() =>
             handleMouseEnter("Navigate to Get Started Page")
