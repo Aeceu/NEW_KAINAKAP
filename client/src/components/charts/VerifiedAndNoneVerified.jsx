@@ -8,18 +8,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const VerifiedAndNoneVerified = () => {
+const VerifiedAndNoneVerified = ({ users = [] }) => {
+  const verifiedCount = users.filter(
+    (user) => user.verificationStatus === "verified",
+  ).length;
+
+  const nonVerifiedCount = users.filter(
+    (user) => user.verificationStatus === "not verified",
+  ).length;
+
   const data = [
-    {
-      name: "Verified",
-      count: 2,
-      length: 0,
-    },
-    {
-      name: "Non-Verified",
-      count: 3,
-      length: 0,
-    },
+    { name: "Verified", count: verifiedCount },
+    { name: "Non-Verified", count: nonVerifiedCount },
   ];
 
   return (
@@ -28,18 +28,11 @@ const VerifiedAndNoneVerified = () => {
         width={500}
         height={300}
         data={data}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
+        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
       >
-        {/* <CartesianGrid strokeDasharray="1 1" /> */}
         <XAxis dataKey="name" />
-        <YAxis dataKey="length" />
+        <YAxis />
         <Tooltip />
-        {/* <Legend /> */}
         <Bar
           dataKey="count"
           fill="#8884d8"
@@ -49,4 +42,5 @@ const VerifiedAndNoneVerified = () => {
     </ResponsiveContainer>
   );
 };
+
 export default VerifiedAndNoneVerified;

@@ -27,7 +27,13 @@ const signup = async (req, res) => {
               (firstName = ? AND lastName = ?) OR
               (firstName = ? AND lastName = ? AND middleName = ?)
               `,
-      [newUser.firstName, newUser.lastName, newUser.firstName, newUser.lastName, newUser.middleName]
+      [
+        newUser.firstName,
+        newUser.lastName,
+        newUser.firstName,
+        newUser.lastName,
+        newUser.middleName,
+      ]
     );
 
     if (users.length > 0) {
@@ -47,7 +53,11 @@ const signup = async (req, res) => {
         const result = await cloudinary.uploader.upload(files[key], {
           folder: `kainakap/user_files/${newUser.lastName}`,
         });
-        return { key, public_id: result.public_id, secure_url: result.secure_url };
+        return {
+          key,
+          public_id: result.public_id,
+          secure_url: result.secure_url,
+        };
       }
     });
 
@@ -317,13 +327,15 @@ const signup = async (req, res) => {
     });
 
     // Update user with QR code info
-    await connection.promise().query(`UPDATE \`user\` SET \`qr_code\` = ? WHERE \`id\` = ?`, [
-      JSON.stringify({
-        image_id: resultUpload.public_id,
-        secure_url: resultUpload.secure_url,
-      }),
-      newID,
-    ]);
+    await connection
+      .promise()
+      .query(`UPDATE \`user\` SET \`qr_code\` = ? WHERE \`id\` = ?`, [
+        JSON.stringify({
+          image_id: resultUpload.public_id,
+          secure_url: resultUpload.secure_url,
+        }),
+        newID,
+      ]);
 
     res.status(200).json({ message: "New user created!" });
   } catch (error) {
@@ -348,7 +360,10 @@ const login = async (req, res) => {
       return res.status(403).json("User does not exists!");
     }
 
-    const validPass = await bcrypt.compare(data.password, userExists[0].password);
+    const validPass = await bcrypt.compare(
+      data.password,
+      userExists[0].password
+    );
     if (!validPass) {
       return res.status(400).json("Invalid password!");
     }
@@ -398,7 +413,9 @@ const verifyOTP = async (req, res) => {
     if (otpRecords.length === 0) {
       return res
         .status(403)
-        .json("Account record doesn't exist or has been verified already. Please sign up or login");
+        .json(
+          "Account record doesn't exist or has been verified already. Please sign up or login"
+        );
     }
 
     const otpRecord = otpRecords[0];
@@ -407,18 +424,24 @@ const verifyOTP = async (req, res) => {
 
     const now = new Date();
     if (new Date(updatedAt) < now) {
-      connection.promise().query("DELETE FROM `otp` WHERE `userId` = ?", [userId]);
+      connection
+        .promise()
+        .query("DELETE FROM `otp` WHERE `userId` = ?", [userId]);
       return res.status(403).json("Code has expired. Please request again");
     }
 
     // Validate OTP
     const validOTP = await bcrypt.compare(otp, hashOTP);
     if (!validOTP) {
-      return res.status(403).json("Invalid code. Please check your inbox again");
+      return res
+        .status(403)
+        .json("Invalid code. Please check your inbox again");
     }
 
     // Fetch user data
-    const [users] = await connection.promise().query(getUserByIdQuery, [userId]);
+    const [users] = await connection
+      .promise()
+      .query(getUserByIdQuery, [userId]);
     if (users.length === 0) return res.status(403).json("User does not exist!");
     const user = users[0];
 
@@ -516,7 +539,9 @@ const verifyOTP = async (req, res) => {
     };
 
     // Delete OTP record
-    await connection.promise().query("DELETE FROM `otp` WHERE `userId` = ?", [userId]);
+    await connection
+      .promise()
+      .query("DELETE FROM `otp` WHERE `userId` = ?", [userId]);
 
     // Generate tokens
     const user_data = {
@@ -535,7 +560,10 @@ const verifyOTP = async (req, res) => {
     // Update user with refresh token
     const [rt_result] = await connection
       .promise()
-      .query("UPDATE `user` SET `refreshToken` = ? WHERE `id` = ?", [userRefreshToken, userId]);
+      .query("UPDATE `user` SET `refreshToken` = ? WHERE `id` = ?", [
+        userRefreshToken,
+        userId,
+      ]);
 
     // Send the refresh token as a cookie
     res.cookie("jwt", userRefreshToken, {
@@ -573,7 +601,9 @@ const handleRefreshToken = async (req, res) => {
     if (err || foundUser[0].email !== decoded.email) {
       return res.sendStatus(403);
     }
-    const [rows] = await connection.promise().query(getUserByIdQuery, [decoded.id]);
+    const [rows] = await connection
+      .promise()
+      .query(getUserByIdQuery, [decoded.id]);
     const user = rows[0];
 
     const result = {
@@ -703,7 +733,9 @@ const logout = async (req, res) => {
   const userFound = foundUser[0];
   await connection
     .promise()
-    .query("UPDATE `user` SET `refreshToken` = NULL WHERE `id` = ?", [userFound.id]);
+    .query("UPDATE `user` SET `refreshToken` = NULL WHERE `id` = ?", [
+      userFound.id,
+    ]);
 
   res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
   res.status(200).send("Cookie removed");
@@ -731,7 +763,9 @@ const getUsersColumn = async (req, res) => {
     // user_files_schema.map((item) => user_files_table.push(`${item.Field}, ${item.Type}`));
     // res.status(200).json({ user_table, emergency_person_table, admin_table, user_files_table });
 
-    const [result] = await connection.promise().query("SELECT * from user_files");
+    const [result] = await connection
+      .promise()
+      .query("SELECT * from user_files");
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
@@ -741,6 +775,17 @@ const getUsersColumn = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
+    connection.query("SHOW TABLES FROM kainakap;", (err, results) => {
+      if (err) {
+        console.error("Error fetching tables:", err);
+        return;
+      }
+
+      // MySQL returns table names with the key: 'Tables_in_<database_name>'
+      const tableKey = `Tables_in_kainakap`;
+      const tableNames = results.map((row) => row[tableKey]);
+      console.log("Tables in the database:", tableNames);
+    });
     connection.query(getUsersQuery, (err, result) => {
       if (err) {
         console.log(err);
@@ -1136,7 +1181,10 @@ const getUserByQR = async (req, res) => {
     // Update user with refresh token
     const [rt_result] = await connection
       .promise()
-      .query("UPDATE `user` SET `refreshToken` = ? WHERE `id` = ?", [userRefreshToken, userId]);
+      .query("UPDATE `user` SET `refreshToken` = ? WHERE `id` = ?", [
+        userRefreshToken,
+        userId,
+      ]);
 
     console.log("Query Result:", rt_result);
 
@@ -1160,6 +1208,45 @@ const getUserByQR = async (req, res) => {
   }
 };
 
+const updateUserVerificationStatus = async (req, res) => {
+  const { userId, newStatus } = req.body;
+
+  if (!userId || !newStatus) {
+    return res
+      .status(400)
+      .json({ message: "User ID and new status are required." });
+  }
+
+  try {
+    // Check if user exists
+    const [existingUser] = await connection
+      .promise()
+      .query("SELECT * FROM `user` WHERE `id` = ?", [userId]);
+
+    if (existingUser.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Update verification status
+    await connection
+      .promise()
+      .query("UPDATE `user` SET `verification_status` = ? WHERE `id` = ?", [
+        newStatus,
+        userId,
+      ]);
+
+    res
+      .status(200)
+      .json({ message: "Verification status updated successfully." });
+  } catch (error) {
+    console.error("Error updating verification status:", error);
+    res.status(500).json({
+      message: "Internal server error while updating verification status.",
+      error,
+    });
+  }
+};
+
 module.exports = {
   getUserByQR,
   signup,
@@ -1171,4 +1258,5 @@ module.exports = {
   logout,
   getUserByID,
   deleteUserByID,
+  updateUserVerificationStatus,
 };

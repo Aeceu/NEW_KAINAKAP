@@ -41,7 +41,10 @@ const login = async (req, res) => {
     // Update user with refresh token
     const [rt_result] = await connection
       .promise()
-      .query("UPDATE `admin` SET `refreshToken` = ? WHERE `id` = ?", [adminRefreshToken, admin.id]);
+      .query("UPDATE `admin` SET `refreshToken` = ? WHERE `id` = ?", [
+        adminRefreshToken,
+        admin.id,
+      ]);
 
     // Send the refresh token as a cookie
     res.cookie("jwt", adminRefreshToken, {
@@ -127,7 +130,9 @@ const logout = async (req, res) => {
   const adminFound = foundAdmin[0];
   await connection
     .promise()
-    .query("UPDATE `admin` SET `refreshToken` = NULL WHERE `id` = ?", [adminFound.id]);
+    .query("UPDATE `admin` SET `refreshToken` = NULL WHERE `id` = ?", [
+      adminFound.id,
+    ]);
 
   res.clearCookie("jwt", { httpOnly: true, sameSite: "none", secure: true });
   res.status(200).send("Cookie removed");
@@ -169,4 +174,24 @@ const handleRefreshToken = async (req, res) => {
   });
 };
 
-module.exports = { login, signup, logout, handleRefreshToken };
+const getAllAdminUsers = async (req, res) => {
+  try {
+    const [admins] = await connection.promise().query("SELECT * FROM `admin`");
+
+    res.status(200).json(admins);
+  } catch (error) {
+    console.error("Error fetching admin users:", error);
+    res.status(500).json({
+      message: "Failed to fetch admin users.",
+      error,
+    });
+  }
+};
+
+module.exports = {
+  login,
+  signup,
+  logout,
+  handleRefreshToken,
+  getAllAdminUsers,
+};

@@ -1,24 +1,6 @@
-import { useEffect, useState } from "react";
-import axios from "../../api/axios";
-
-const AdminTable = () => {
-  const [admins, setAdmins] = useState([]);
-
-  useEffect(() => {
-    const getAllAdmins = async () => {
-      try {
-        const res = await axios.get("/registeredAdmins");
-        setAdmins(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.log(error);
-        alert("ERROR!");
-      }
-    };
-    // getAllAdmins();
-  }, []);
+const AdminTable = ({ admins }) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-auto">
       <table className="table">
         {/* head */}
         <thead>

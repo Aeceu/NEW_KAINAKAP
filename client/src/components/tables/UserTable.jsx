@@ -1,45 +1,31 @@
-import { useEffect, useState } from "react";
-import axios from "../../api/axios";
+import ChangeVerificationModal from "../modals/changeVerificationModal";
 
-const UserTable = () => {
-  const [admins, setAdmins] = useState([]);
-
-  useEffect(() => {
-    const getAllAdmins = async () => {
-      try {
-        const res = await axios.get("/registeredAdmins");
-        setAdmins(res.data);
-        console.log(res.data);
-      } catch (error) {
-        console.log(error);
-        alert("ERROR!");
-      }
-    };
-    // getAllAdmins();
-  }, []);
+const UserTable = ({ users }) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-auto">
       <table className="table">
         {/* head */}
         <thead>
           <tr>
             <th></th>
             <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
-          {admins.map((admin, idx) => (
-            <tr key={admin.id}>
-              <th>{idx}</th>
-              <td>
-                {admin.firstName} {admin.lastName}{" "}
-              </td>
-              <td>{admin.email}</td>
-              <td>{admin.role}</td>
-            </tr>
-          ))}
+          {users.length > 0 &&
+            users.map((user, idx) => (
+              <tr key={user.id}>
+                <th>{idx}</th>
+                <td>
+                  {user.firstName} {user.lastName}{" "}
+                </td>
+                <td>{user.verificationStatus}</td>
+                <td>
+                  <ChangeVerificationModal user={user} />
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>

@@ -10,6 +10,7 @@ const {
   getUserByID,
   deleteUserByID,
   getUserByQR,
+  updateUserVerificationStatus,
 } = require("../controllers/userController");
 const { extractDataFromID } = require("../controllers/filesController");
 
@@ -30,5 +31,6 @@ router.get("/user/:userId", getUserByID);
 router.delete("/user/:userId", deleteUserByID);
 
 router.post("/id/extract", extractDataFromID);
+router.put("/update-verification", updateUserVerificationStatus);
 
 module.exports = router;

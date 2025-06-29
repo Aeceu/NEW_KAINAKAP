@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -8,44 +7,12 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import axios from "../../api/axios";
 
-const AdminUserChart = () => {
-  const [data, setData] = useState([
-    {
-      name: "Admin",
-      count: 0,
-      length: 0,
-    },
-    {
-      name: "User",
-      count: 0,
-      length: 0,
-    },
-  ]);
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const res = await axios.get("/users");
-        setData([
-          {
-            ...data[0],
-            count: res.data.admins,
-            length: res.data.admins + 5,
-          },
-          {
-            ...data[1],
-            count: res.data.users,
-            length: res.data.users + 5,
-          },
-        ]);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    // fetchCount();
-  }, []);
-
+const AdminUserChart = ({ admins, users = [] }) => {
+  const data = [
+    { name: "admins", count: admins.length },
+    { name: "users", count: users.length },
+  ];
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart
@@ -61,9 +28,8 @@ const AdminUserChart = () => {
       >
         {/* <CartesianGrid strokeDasharray="1 1" /> */}
         <XAxis dataKey="name" />
-        <YAxis dataKey="length" />
+        <YAxis />
         <Tooltip />
-        {/* <Legend /> */}
         <Bar
           dataKey="count"
           fill="#8884d8"

@@ -16,6 +16,7 @@ const app = express();
 
 // TRUSTERED ORIGINS
 const localClientUrl = "https://new-kainakap.vercel.app";
+// const localClientUrl = "http://localhost:5173";
 
 // MIDDLEWARES
 app.use(bodyParser.json({ limit: "50mb" }));
